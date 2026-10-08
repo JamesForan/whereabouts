@@ -1,0 +1,173 @@
+#!/bin/bash
+# Data source for the overlay (Overlay.qml). Prints every open Hyprland window
+# grouped by workspace as JSON:
+#
+#   {"groups":[{"key":"1","shortcut":"SUPER + 1","title":"Workspace 1",
+#               "monitor":"Laptop","layout":"dwindle","current":true,"empty":false,
+#               "order":1,"windows":[{"address","icon","app","title","state","onScreen"}]}]}
+#
+# Terminals running tmux show the session and its window count. Browsers only
+# expose the active tab's title to the compositor, so tab counts aren't shown.
+#
+#   window-list             print the JSON
+#   window-list focus ADDR  focus that window
+#
+# Requires: hyprctl, jq. Optional: tmux, omarchy (for shortcut hints).
+
+set -euo pipefail
+
+if [[ ${1:-} == focus ]]; then
+  addr=${2:?address}
+  # The overlay closes as this runs, and Hyprland hands focus back to the
+  # previous window when the overlay's layer unmaps, which can undo our focus.
+  # Wait for the layer to go, focus, then check and retry once.
+  for _ in {1..20}; do
+    hyprctl layers -j | grep -q '"getlost"' || break
+    sleep 0.05
+  done
+  for _ in 1 2; do
+    hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >/dev/null 2>&1 ||
+      hyprctl dispatch focuswindow "address:$addr" >/dev/null
+    sleep 0.15
+    [[ $(hyprctl activewindow -j | jq -r '.address') == "$addr" ]] && exit 0
+  done
+  exit 1
+fi
+
+# Nerd Font glyphs, by codepoint so they survive editors that strip private-use
+# characters.
+g_web=$(printf '\U000F059F')
+g_firefox=$(printf '')
+g_chrome=$(printf '')
+g_code=$(printf '\U000F0A1E')
+g_term=$(printf '')
+g_files=$(printf '\U000F024B')
+g_spotify=$(printf '')
+g_slack=$(printf '')
+g_app=$(printf '\U000F08C6')
+
+# tmux clients are direct children of their terminal window's process.
+tmux_by_pid='{}'
+if command -v tmux >/dev/null; then
+  tmux_by_pid=$(
+    tmux list-clients -F '#{client_pid}	#{session_name}	#{session_windows}' 2>/dev/null |
+      while IFS=$'\t' read -r cpid session count; do
+        ppid=$(ps -o ppid= -p "$cpid" 2>/dev/null | tr -d ' ') || continue
+        [[ -n $ppid ]] && jq -cn --arg p "$ppid" --arg s "$session" --argjson n "$count" '{($p): {session: $s, windows: $n}}'
+      done | jq -s 'add // {}'
+  )
+fi
+
+# Shortcut hints from Omarchy's keybinding list ("SUPER + 1 → Switch to workspace 1").
+# Omarchy's keybinding cache also records the dispatch behind each bind, which
+# finds special-workspace toggles whatever they're called; without it, fall back
+# to "Toggle <name>" descriptions.
+shortcuts='{}'
+if command -v omarchy >/dev/null; then
+  cache=$(ls -t "${XDG_CACHE_HOME:-$HOME/.cache}"/omarchy/keybindings-*.records 2>/dev/null | head -1 || true)
+  shortcuts=$(
+    { if [[ -n $cache ]]; then cat "$cache"; else omarchy menu keybindings --print 2>/dev/null; fi; } |
+      jq -R -s '
+        def pretty: gsub("GRAVE"; "`") | gsub("MINUS"; "-") | gsub("EQUAL"; "=") | gsub("COMMA"; ",")
+                    | gsub("PERIOD"; ".") | gsub("SLASH"; "/") | gsub("  +"; " ");
+        [ split("\n")[] | select(test(" → "))
+          | (split(" → ") | {keys: (.[0] | sub("\\s+$"; "") | pretty), rest: .[1]})
+          | (.rest | split("\t")) as $f
+          | (if ($f[0] | test("^Switch to workspace [0-9]+$")) then ($f[0] | sub("^Switch to workspace "; ""))
+             elif ($f[2] // "" | test("toggle_special\\(\"[^\"]+\"\\)")) then
+               "special:" + ($f[2] | capture("toggle_special\\(\"(?<n>[^\"]+)\"\\)").n)
+             elif ($f[0] | test("^Toggle [A-Za-z0-9_-]+$")) then "special:" + ($f[0] | sub("^Toggle "; "") | ascii_downcase)
+             else empty end) as $target
+          | {key: $target, value: .keys} ]
+        | reverse | from_entries'
+  ) || shortcuts='{}'
+fi
+
+jq -n \
+  --argjson clients "$(hyprctl clients -j)" \
+  --argjson workspaces "$(hyprctl workspaces -j)" \
+  --argjson monitors "$(hyprctl monitors all -j)" \
+  --argjson tmux "$tmux_by_pid" \
+  --argjson shortcuts "$shortcuts" \
+  --argjson activews "$(hyprctl activeworkspace -j | jq '.id')" \
+  --arg g_web "$g_web" --arg g_firefox "$g_firefox" --arg g_chrome "$g_chrome" \
+  --arg g_code "$g_code" --arg g_term "$g_term" --arg g_files "$g_files" \
+  --arg g_spotify "$g_spotify" --arg g_slack "$g_slack" --arg g_app "$g_app" '
+  # Monitor labels: built-in panel = "Laptop", externals by make (plus model if
+  # two share a make).
+  ($monitors | map(.make) | group_by(.) | map(select(length > 1) | .[0])) as $dupmakes
+  | ($monitors | map({key: (.id | tostring), value: (
+      if (.name | test("^(eDP|LVDS|DSI)")) then "Laptop"
+      elif (.make // "") == "" then .name
+      elif ($dupmakes | index(.make)) then "\(.make) \(.model)"
+      else .make end)}) | from_entries) as $mon
+  | ($monitors | map({key: (.id | tostring), value: (
+      (if (.transform % 2) == 1 then [.height, .width] else [.width, .height] end) as [$w, $h]
+      | {x, y, w: ($w / .scale), h: ($h / .scale)})}) | from_entries) as $geo
+  | ($workspaces | map({key: .name, value: .}) | from_entries) as $wsinfo
+  | def strip($re): sub($re; "");
+    def titlecase: sub("^(?<f>.)"; "\(.f | ascii_upcase)");
+    def describe:
+      .class as $c | .title as $t
+      | if ($c | test("^(brave|Brave)")) then {app: "Brave", icon: $g_web, title: ($t | strip(" - Brave( Origin| Beta| Nightly)?$"))}
+        elif ($c | test("^(chrome|brave)-.*-Default$")) then {app: ($t | strip(" - (Chromium|Google Chrome|Brave)$")), icon: $g_web, title: ""}
+        elif ($c | test("^(chromium|Chromium)")) then {app: "Chromium", icon: $g_chrome, title: ($t | strip(" - Chromium$"))}
+        elif ($c | test("^google-chrome")) then {app: "Chrome", icon: $g_chrome, title: ($t | strip(" - Google Chrome$"))}
+        elif ($c | test("^(vivaldi|Vivaldi)")) then {app: "Vivaldi", icon: $g_web, title: ($t | strip(" - Vivaldi$"))}
+        elif ($c | test("^microsoft-edge")) then {app: "Edge", icon: $g_web, title: ($t | strip(" - Microsoft.*Edge$"))}
+        elif ($c | test("^(firefox|librewolf|zen)"; "i")) then {app: ($c | sub("-.*$"; "") | titlecase), icon: $g_firefox, title: ($t | strip(" [-—] (Mozilla Firefox|LibreWolf|Zen Browser)$"))}
+        elif ($c | test("^(code|Code|code-oss|VSCodium|codium)$")) then {app: "VS Code", icon: $g_code, title: ($t | strip("( - )?(Visual Studio Code|VSCodium|Code - OSS)$"))}
+        elif ($c | test("^(cursor|Cursor)$")) then {app: "Cursor", icon: $g_code, title: ($t | strip("( - )?Cursor$"))}
+        elif ($c | test("Spotify"; "i")) then {app: "Spotify", icon: $g_spotify, title: (if ($t | test("^Spotify( Premium| Free)?$")) then "" else $t end)}
+        elif ($c | test("^Slack$"; "i")) then {app: "Slack", icon: $g_slack, title: ($t | strip(" - Slack$"))}
+        elif ($c | test("Nautilus|thunar|nemo|dolphin"; "i")) then {app: "Files", icon: $g_files, title: $t}
+        elif ($c | test("^(foot|footclient|Alacritty|kitty|com.mitchellh.ghostty|org.wezfurlong.wezterm|TUI\\.)") or ($c | test("terminal"; "i"))) then
+          ($tmux[.pid | tostring]) as $tm
+          | if $tm then {app: "tmux", icon: $g_term, title: "\($tm.session) · \($tm.windows) window\(if $tm.windows == 1 then "" else "s" end)"}
+            else {app: "Terminal", icon: $g_term, title: $t} end
+        else {app: (($c // "?") | split(".") | last | titlecase), icon: $g_app, title: $t}
+        end;
+    def state:
+      if .floating then "floating" else "" end;
+    # Visible = not covered by a fullscreen/maximized window and overlapping its
+    # monitor (the scrolling layout pushes columns off the edge).
+    def on_screen($full):
+      ($geo[.monitor | tostring]) as $m
+      | (if $full and .fullscreen == 0 and (.pinned | not) then false else true end)
+        and ($m == null or (.at[0] < $m.x + $m.w and .at[0] + .size[0] > $m.x
+                            and .at[1] < $m.y + $m.h and .at[1] + .size[1] > $m.y));
+    def group_title:
+      if . == "special:scratchpad" then "Scratchpad"
+      elif startswith("special:") then (ltrimstr("special:") | titlecase)
+      else "Workspace \(.)" end;
+  {groups: (
+    $clients
+    | map(select(.mapped and (.workspace.id > 0 or (.workspace.name | startswith("special:")))))
+    | group_by(.workspace.id)
+    | map(
+        .[0].workspace as $ws
+        | ($wsinfo[$ws.name] // {}) as $info
+        | {
+            key: (if $ws.id > 0 and $ws.id < 10 then ($ws.id | tostring) else "" end),
+            shortcut: ($shortcuts[if $ws.id > 0 then ($ws.id | tostring) else $ws.name end] // ""),
+            title: ($ws.name | group_title),
+            monitor: ($mon[.[0].monitor | tostring] // ""),
+            layout: (if $ws.id > 0 then ($info.tiledLayout // "") else "" end),
+            current: ($ws.id == $activews),
+            empty: false,
+            order: (if $ws.id < 0 then 1000 - $ws.id else $ws.id end),
+            windows: (sort_by(.at[0], .at[1]) | map(. as $w | describe + {
+              address: $w.address, state: ($w | state),
+              onScreen: ($w | on_screen($info.hasfullscreen // false))}))
+          })
+    # Hyprland drops empty workspaces; fill the gaps up to the highest one in use.
+    | . as $used
+    | ([$used[] | .order | select(. < 1000)] | max // 0) as $top
+    | ($used | map(.order)) as $have
+    | . + [range(1; $top) | select(. as $i | $have | index($i) | not) | {
+        key: (if . < 10 then tostring else "" end), shortcut: ($shortcuts[tostring] // ""),
+        title: "Workspace \(.)", monitor: "", layout: "", current: false, empty: true, order: ., windows: []
+      }]
+    | sort_by(.order)
+  )}
+'
