@@ -6,7 +6,7 @@ import QtQuick
 import qs.Commons
 import qs.Ui
 
-// Get Lost: every open window grouped by workspace, in the Omarchy menu style.
+// Whereabouts: every open window grouped by workspace, in the Omarchy menu style.
 // Toggle with `omarchy-shell shell toggle <plugin id>` (see README for a key
 // binding). Data comes from the bundled `window-list` script (JSON);
 // Enter/click focuses via `window-list focus`.
@@ -69,7 +69,7 @@ Item {
   function dismiss() {
     root.opened = false
     if (root.shell && typeof root.shell.hide === "function")
-      root.shell.hide((root.manifest && root.manifest.id) || "jamesforan.getlost")
+      root.shell.hide((root.manifest && root.manifest.id) || "jamesforan.whereabouts")
   }
 
   function toggle() {
@@ -222,7 +222,7 @@ Item {
     visible: root.opened && root.loaded
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
-    WlrLayershell.namespace: "getlost"
+    WlrLayershell.namespace: "whereabouts"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
     exclusionMode: ExclusionMode.Ignore

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "jamesforan.getlost",
-  "name": "Get Lost",
+  "id": "jamesforan.whereabouts",
+  "name": "Whereabouts",
   "version": "0.1.0",
   "author": "James Foran",
   "description": "Every open window grouped by workspace, as a live text list in the Omarchy menu style",

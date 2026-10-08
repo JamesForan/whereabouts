@@ -22,7 +22,7 @@ if [[ ${1:-} == focus ]]; then
   # previous window when the overlay's layer unmaps, which can undo our focus.
   # Wait for the layer to go, focus, then check and retry once.
   for _ in {1..20}; do
-    hyprctl layers -j | grep -q '"getlost"' || break
+    hyprctl layers -j | grep -q '"whereabouts"' || break
     sleep 0.05
   done
   for _ in 1 2; do

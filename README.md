@@ -1,4 +1,4 @@
-# Get Lost
+# Whereabouts
 
 Every open window, grouped by workspace, as a plain text list in the Omarchy menu style. Tap a key, see where everything is, jump to it.
 
@@ -26,25 +26,25 @@ Made for the moment a window you were just using seems to have vanished: it's be
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/JamesForan/getlost.git --enable
+omarchy plugin add https://github.com/JamesForan/whereabouts.git --enable
 ```
 
 Then add a key binding to `~/.config/hypr/bindings.lua`. To open it with a tap of SUPER on its own (press and release, no other key):
 
 ```lua
-o.bind("SUPER + Super_L", "Get Lost", "omarchy-shell shell toggle jamesforan.getlost", { release = true })
+o.bind("SUPER + Super_L", "Whereabouts", "omarchy-shell shell toggle jamesforan.whereabouts", { release = true })
 ```
 
 It's a release binding, so SUPER + anything else still works as normal. If you'd rather use a regular shortcut, check `omarchy menu keybindings --print` for a free one first:
 
 ```lua
-o.bind("SUPER + O", "Get Lost", "omarchy-shell shell toggle jamesforan.getlost")
+o.bind("SUPER + O", "Whereabouts", "omarchy-shell shell toggle jamesforan.whereabouts")
 ```
 
 Hyprland reloads the binding when you save the file. You can also open it from a terminal:
 
 ```bash
-omarchy-shell shell toggle jamesforan.getlost
+omarchy-shell shell toggle jamesforan.whereabouts
 ```
 
 ## Keys
@@ -72,7 +72,7 @@ Going to a dimmed window brings it into view: it takes over from a maximized win
 Remove the key binding from `~/.config/hypr/bindings.lua`, then:
 
 ```bash
-omarchy plugin remove jamesforan.getlost
+omarchy plugin remove jamesforan.whereabouts
 ```
 
 ## Development
@@ -83,7 +83,7 @@ The repository root is the plugin folder:
 - `Overlay.qml`: the list UI.
 - `window-list`: Bash and jq script that reads Hyprland and prints the grouped windows as JSON (`window-list focus <address>` focuses a window). Run it directly to see the data.
 
-Validate with `omarchy plugin validate .`. For local testing, copy the three files to `~/.config/omarchy/plugins/jamesforan.getlost/`, run `omarchy-shell shell rescanPlugins` and `omarchy plugin enable jamesforan.getlost`. The overlay stays loaded, so restart the shell (`omarchy restart shell`) after editing `Overlay.qml`. Edits to `window-list` apply on the next open.
+Validate with `omarchy plugin validate .`. For local testing, copy the three files to `~/.config/omarchy/plugins/jamesforan.whereabouts/`, run `omarchy-shell shell rescanPlugins` and `omarchy plugin enable jamesforan.whereabouts`. The overlay stays loaded, so restart the shell (`omarchy restart shell`) after editing `Overlay.qml`. Edits to `window-list` apply on the next open.
 
 ## License
 
