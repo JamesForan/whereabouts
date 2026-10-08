@@ -2,7 +2,7 @@
 
 Every open window, grouped by workspace, as a plain text list in the Omarchy menu style. Tap a key, see where everything is, jump to it.
 
-<!-- TODO: preview.png -->
+![Whereabouts listing windows grouped by workspace, with dimmed off-screen windows and an empty workspace](preview.png)
 
 Made for the moment a window you were just using seems to have vanished: it's behind a maximized window, scrolled off-screen in the scrolling layout, or on a workspace that moved to another monitor when you unplugged it.
 
