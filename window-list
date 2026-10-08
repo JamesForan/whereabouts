@@ -53,8 +53,10 @@ if command -v tmux >/dev/null; then
     tmux list-clients -F '#{client_pid}	#{session_name}	#{session_windows}' 2>/dev/null |
       while IFS=$'\t' read -r cpid session count; do
         ppid=$(ps -o ppid= -p "$cpid" 2>/dev/null | tr -d ' ') || continue
-        [[ -n $ppid ]] && jq -cn --arg p "$ppid" --arg s "$session" --argjson n "$count" '{($p): {session: $s, windows: $n}}'
-      done | jq -s 'add // {}'
+        [[ -n $ppid ]] && printf '%s\t%s\t%s\n' "$ppid" "$session" "$count"
+      done |
+      jq -R -s '[split("\n")[] | select(length > 0) | split("\t")
+                 | {key: .[0], value: {session: .[1], windows: (.[2] | tonumber)}}] | from_entries'
   )
 fi
 
@@ -83,19 +85,24 @@ if command -v omarchy >/dev/null; then
   ) || shortcuts='{}'
 fi
 
+# Window titles, tmux session names and shortcuts reach jq through file
+# descriptors, never command-line arguments, which other local users can read
+# from /proc while the overlay refreshes. (printf is a bash builtin.)
 jq -n \
-  --argjson clients "$(hyprctl clients -j)" \
-  --argjson workspaces "$(hyprctl workspaces -j)" \
-  --argjson monitors "$(hyprctl monitors all -j)" \
-  --argjson tmux "$tmux_by_pid" \
-  --argjson shortcuts "$shortcuts" \
+  --slurpfile clients <(hyprctl clients -j) \
+  --slurpfile workspaces <(hyprctl workspaces -j) \
+  --slurpfile monitors <(hyprctl monitors all -j) \
+  --slurpfile tmux <(printf '%s' "$tmux_by_pid") \
+  --slurpfile shortcuts <(printf '%s' "$shortcuts") \
   --argjson activews "$(hyprctl activeworkspace -j | jq '.id')" \
   --arg g_web "$g_web" --arg g_firefox "$g_firefox" --arg g_chrome "$g_chrome" \
   --arg g_code "$g_code" --arg g_term "$g_term" --arg g_files "$g_files" \
   --arg g_spotify "$g_spotify" --arg g_slack "$g_slack" --arg g_app "$g_app" '
+  ($clients[0]) as $clients | ($workspaces[0]) as $workspaces | ($monitors[0]) as $monitors
+  | ($tmux[0]) as $tmux | ($shortcuts[0]) as $shortcuts
   # Monitor labels: built-in panel = "Laptop", externals by make (plus model if
   # two share a make).
-  ($monitors | map(.make) | group_by(.) | map(select(length > 1) | .[0])) as $dupmakes
+  | ($monitors | map(.make) | group_by(.) | map(select(length > 1) | .[0])) as $dupmakes
   | ($monitors | map({key: (.id | tostring), value: (
       if (.name | test("^(eDP|LVDS|DSI)")) then "Laptop"
       elif (.make // "") == "" then .name
