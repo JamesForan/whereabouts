@@ -106,7 +106,7 @@ jq -n \
   | ($monitors | map({key: (.id | tostring), value: (
       if (.name | test("^(eDP|LVDS|DSI)")) then "Laptop"
       elif (.make // "") == "" then .name
-      elif ($dupmakes | index(.make)) then "\(.make) \(.model)"
+      elif (.make as $mk | $dupmakes | any(. == $mk)) then "\(.make) \(.model)"
       else .make end)}) | from_entries) as $mon
   | ($monitors | map({key: (.id | tostring), value: (
       (if (.transform % 2) == 1 then [.height, .width] else [.width, .height] end) as [$w, $h]

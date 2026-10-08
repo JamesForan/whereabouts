@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jamesforan.whereabouts",
   "name": "Whereabouts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "James Foran",
   "description": "Every open window grouped by workspace, as a live text list in the Omarchy menu style",
   "kinds": [
