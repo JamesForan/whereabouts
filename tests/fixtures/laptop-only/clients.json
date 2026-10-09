@@ -1,0 +1,117 @@
+[
+ {
+  "address": "0x0001",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   1410,
+   940
+  ],
+  "class": "foot",
+  "title": "tmux",
+  "pid": 500,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x0002",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   1410,
+   940
+  ],
+  "class": "brave-browser",
+  "title": "Inbox - Brave",
+  "pid": 1002,
+  "floating": false,
+  "fullscreen": 1,
+  "pinned": false
+ },
+ {
+  "address": "0x0003",
+  "mapped": true,
+  "workspace": {
+   "id": 3,
+   "name": "3"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   1000,
+   940
+  ],
+  "class": "code",
+  "title": "window-list - whereabouts - Visual Studio Code",
+  "pid": 1003,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x0004",
+  "mapped": true,
+  "workspace": {
+   "id": 3,
+   "name": "3"
+  },
+  "monitor": 0,
+  "at": [
+   1500,
+   0
+  ],
+  "size": [
+   1000,
+   940
+  ],
+  "class": "chromium",
+  "title": "Docs - Chromium",
+  "pid": 1004,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x0005",
+  "mapped": true,
+  "workspace": {
+   "id": -98,
+   "name": "special:scratchpad"
+  },
+  "monitor": 0,
+  "at": [
+   200,
+   100
+  ],
+  "size": [
+   1000,
+   700
+  ],
+  "class": "Spotify",
+  "title": "Spotify Premium",
+  "pid": 1005,
+  "floating": true,
+  "fullscreen": 0,
+  "pinned": false
+ }
+]

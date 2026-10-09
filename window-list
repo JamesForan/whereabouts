@@ -100,14 +100,25 @@ jq -n \
   --arg g_spotify "$g_spotify" --arg g_slack "$g_slack" --arg g_app "$g_app" '
   ($clients[0]) as $clients | ($workspaces[0]) as $workspaces | ($monitors[0]) as $monitors
   | ($tmux[0]) as $tmux | ($shortcuts[0]) as $shortcuts
-  # Monitor labels: built-in panel = "Laptop", externals by make (plus model if
-  # two share a make).
-  | ($monitors | map(.make) | group_by(.) | map(select(length > 1) | .[0])) as $dupmakes
+  # Monitor labels: built-in panel = "Laptop", externals by brand (plus model if
+  # two share a brand). EDID makes come from the PNP registry, so they are
+  # company names ("Samsung Electric Company", "Dell Inc.") and a few do not
+  # match the brand on the box.
+  | def internal: .name | test("^(eDP|LVDS|DSI)");
+    def brand:
+      {"Ancor Communications Inc": "ASUS", "Microstep": "MSI", "Hewlett Packard": "HP",
+       "Goldstar Company Ltd": "LG"}[.]
+      // sub(",? (Electric|Electronics|Consumer|Communications|Computer|Company|Corporation|Corp\\.?|Inc\\.?|Co\\.|Ltd\\.?|Limited|Group|International|Technology|Technologies)\\b.*$"; "");
+    ($monitors | map(select(internal | not) | .make // "" | brand) | group_by(.) | map(select(length > 1) | .[0])) as $dupbrands
   | ($monitors | map({key: (.id | tostring), value: (
-      if (.name | test("^(eDP|LVDS|DSI)")) then "Laptop"
-      elif (.make // "") == "" then .name
-      elif (.make as $mk | $dupmakes | any(. == $mk)) then "\(.make) \(.model)"
-      else .make end)}) | from_entries) as $mon
+      (.make // "" | brand) as $b
+      | if internal then "Laptop"
+        elif $b == "" then .name
+        elif ($dupbrands | any(. == $b)) then
+          # Some models repeat the brand ("DELL U2720Q").
+          if (.model | ascii_downcase | startswith($b | ascii_downcase + " ")) then $b + .model[($b | length):]
+          else "\($b) \(.model)" end
+        else $b end)}) | from_entries) as $mon
   | ($monitors | map({key: (.id | tostring), value: (
       (if (.transform % 2) == 1 then [.height, .width] else [.width, .height] end) as [$w, $h]
       | {x, y, w: ($w / .scale), h: ($h / .scale)})}) | from_entries) as $geo

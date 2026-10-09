@@ -1,0 +1,62 @@
+[
+ {
+  "id": 0,
+  "name": "eDP-1",
+  "make": "BOE",
+  "model": "NE135A1M-NY1",
+  "x": 0,
+  "y": 0,
+  "width": 2256,
+  "height": 1504,
+  "scale": 1.6,
+  "transform": 0
+ },
+ {
+  "id": 1,
+  "name": "DP-1",
+  "make": "Dell Inc.",
+  "model": "DELL U2720Q",
+  "x": 1410,
+  "y": 0,
+  "width": 3840,
+  "height": 2160,
+  "scale": 1.5,
+  "transform": 0
+ },
+ {
+  "id": 2,
+  "name": "DP-2",
+  "make": "Dell Inc.",
+  "model": "DELL P2419H",
+  "x": 3970,
+  "y": 0,
+  "width": 1080,
+  "height": 1920,
+  "scale": 1.0,
+  "transform": 1
+ },
+ {
+  "id": 3,
+  "name": "HDMI-A-1",
+  "make": "Ancor Communications Inc",
+  "model": "VG27A",
+  "x": 5890,
+  "y": 0,
+  "width": 2560,
+  "height": 1440,
+  "scale": 1.0,
+  "transform": 0
+ },
+ {
+  "id": 4,
+  "name": "DP-3",
+  "make": "",
+  "model": "",
+  "x": 8450,
+  "y": 0,
+  "width": 1920,
+  "height": 1080,
+  "scale": 1.0,
+  "transform": 0
+ }
+]

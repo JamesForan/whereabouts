@@ -1,0 +1,91 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "SUPER + 1",
+      "title": "Workspace 1",
+      "monitor": "Laptop",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 1,
+      "windows": [
+        {
+          "app": "tmux",
+          "icon": "",
+          "title": "work · 3 windows",
+          "address": "0x0001",
+          "state": "",
+          "onScreen": false
+        },
+        {
+          "app": "Brave",
+          "icon": "󰖟",
+          "title": "Inbox",
+          "address": "0x0002",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "2",
+      "shortcut": "",
+      "title": "Workspace 2",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 2,
+      "windows": []
+    },
+    {
+      "key": "3",
+      "shortcut": "",
+      "title": "Workspace 3",
+      "monitor": "Laptop",
+      "layout": "scrolling",
+      "current": false,
+      "empty": false,
+      "order": 3,
+      "windows": [
+        {
+          "app": "VS Code",
+          "icon": "󰨞",
+          "title": "window-list - whereabouts",
+          "address": "0x0003",
+          "state": "",
+          "onScreen": true
+        },
+        {
+          "app": "Chromium",
+          "icon": "",
+          "title": "Docs",
+          "address": "0x0004",
+          "state": "",
+          "onScreen": false
+        }
+      ]
+    },
+    {
+      "key": "",
+      "shortcut": "SUPER + S",
+      "title": "Scratchpad",
+      "monitor": "Laptop",
+      "layout": "",
+      "current": false,
+      "empty": false,
+      "order": 1098,
+      "windows": [
+        {
+          "app": "Spotify",
+          "icon": "",
+          "title": "",
+          "address": "0x0005",
+          "state": "floating",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

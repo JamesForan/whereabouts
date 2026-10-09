@@ -1,0 +1,64 @@
+#!/bin/bash
+# Runs window-list against recorded Hyprland state in fixtures/<case>/ and
+# compares its JSON with fixtures/<case>/expected.json.
+#
+#   tests/run            check every case
+#   tests/run --update   rewrite expected.json from the current output
+#
+# hyprctl, tmux, ps and omarchy are replaced by stubs that read the fixture,
+# so this needs only bash and jq and never touches the running session.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+update=false
+[[ ${1:-} == --update ]] && update=true
+
+stubs=$(mktemp -d)
+trap 'rm -rf "$stubs"' EXIT
+mkdir "$stubs/bin" "$stubs/cache"
+
+cat >"$stubs/bin/hyprctl" <<'STUB'
+#!/bin/bash
+case $1 in
+  clients | workspaces | monitors | activeworkspace) cat "$FIXTURE/$1.json" ;;
+  *) echo "hyprctl stub: unexpected '$*'" >&2; exit 1 ;;
+esac
+STUB
+cat >"$stubs/bin/tmux" <<'STUB'
+#!/bin/bash
+[[ $1 == list-clients && -f $FIXTURE/tmux.tsv ]] && cat "$FIXTURE/tmux.tsv"
+exit 0
+STUB
+cat >"$stubs/bin/ps" <<'STUB'
+#!/bin/bash
+# ps -o ppid= -p PID
+[[ -f $FIXTURE/ps.tsv ]] && awk -v pid="$4" '$1 == pid { print $2 }' "$FIXTURE/ps.tsv"
+exit 0
+STUB
+cat >"$stubs/bin/omarchy" <<'STUB'
+#!/bin/bash
+[[ $* == "menu keybindings --print" && -f $FIXTURE/keybindings.txt ]] && cat "$FIXTURE/keybindings.txt"
+exit 0
+STUB
+chmod +x "$stubs"/bin/*
+
+failed=0
+for dir in "$here"/fixtures/*/; do
+  case=$(basename "$dir")
+  if ! out=$(FIXTURE=$dir XDG_CACHE_HOME=$stubs/cache PATH="$stubs/bin:$PATH" "$here/../window-list" 2>&1 | jq . 2>&1); then
+    echo "FAIL $case: window-list errored"
+    printf '%s\n' "$out" | sed 's/^/  /'
+    failed=1
+  elif $update; then
+    printf '%s\n' "$out" >"$dir/expected.json"
+    echo "updated $case"
+  elif diff -u "$dir/expected.json" <(printf '%s\n' "$out") >"$stubs/diff"; then
+    echo "ok   $case"
+  else
+    echo "FAIL $case: output differs from expected.json"
+    sed 's/^/  /' "$stubs/diff"
+    failed=1
+  fi
+done
+exit $failed

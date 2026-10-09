@@ -1,0 +1,71 @@
+[
+ {
+  "address": "0x0006",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   1410,
+   940
+  ],
+  "class": "Slack",
+  "title": "general - Acme - Slack",
+  "pid": 1006,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x0007",
+  "mapped": true,
+  "workspace": {
+   "id": 4,
+   "name": "4"
+  },
+  "monitor": 2,
+  "at": [
+   -370,
+   -900
+  ],
+  "size": [
+   2150,
+   900
+  ],
+  "class": "firefox",
+  "title": "Release notes \u2014 Mozilla Firefox",
+  "pid": 1007,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x0008",
+  "mapped": true,
+  "workspace": {
+   "id": -97,
+   "name": "special:terminal"
+  },
+  "monitor": 2,
+  "at": [
+   -370,
+   -900
+  ],
+  "size": [
+   2150,
+   450
+  ],
+  "class": "foot",
+  "title": "claude",
+  "pid": 1008,
+  "floating": true,
+  "fullscreen": 0,
+  "pinned": false
+ }
+]

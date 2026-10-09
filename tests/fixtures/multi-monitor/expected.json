@@ -1,0 +1,104 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "",
+      "title": "Workspace 1",
+      "monitor": "Laptop",
+      "layout": "dwindle",
+      "current": false,
+      "empty": false,
+      "order": 1,
+      "windows": [
+        {
+          "app": "Files",
+          "icon": "󰉋",
+          "title": "Downloads",
+          "address": "0x0009",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "2",
+      "shortcut": "",
+      "title": "Workspace 2",
+      "monitor": "Dell U2720Q",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 2,
+      "windows": [
+        {
+          "app": "VS Code",
+          "icon": "󰨞",
+          "title": "",
+          "address": "0x000a",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "3",
+      "shortcut": "",
+      "title": "Workspace 3",
+      "monitor": "Dell P2419H",
+      "layout": "dwindle",
+      "current": false,
+      "empty": false,
+      "order": 3,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "htop",
+          "address": "0x000b",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "4",
+      "shortcut": "",
+      "title": "Workspace 4",
+      "monitor": "ASUS",
+      "layout": "dwindle",
+      "current": false,
+      "empty": false,
+      "order": 4,
+      "windows": [
+        {
+          "app": "Notes",
+          "icon": "󰣆",
+          "title": "Shopping",
+          "address": "0x000c",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "5",
+      "shortcut": "",
+      "title": "Workspace 5",
+      "monitor": "DP-3",
+      "layout": "dwindle",
+      "current": false,
+      "empty": false,
+      "order": 5,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "nvim",
+          "address": "0x000d",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

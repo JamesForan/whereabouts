@@ -1,0 +1,117 @@
+[
+ {
+  "address": "0x0009",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   1410,
+   940
+  ],
+  "class": "org.gnome.Nautilus",
+  "title": "Downloads",
+  "pid": 1009,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x000a",
+  "mapped": true,
+  "workspace": {
+   "id": 2,
+   "name": "2"
+  },
+  "monitor": 1,
+  "at": [
+   1410,
+   0
+  ],
+  "size": [
+   2560,
+   1440
+  ],
+  "class": "code",
+  "title": "Visual Studio Code",
+  "pid": 1010,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x000b",
+  "mapped": true,
+  "workspace": {
+   "id": 3,
+   "name": "3"
+  },
+  "monitor": 2,
+  "at": [
+   3970,
+   0
+  ],
+  "size": [
+   1920,
+   1080
+  ],
+  "class": "Alacritty",
+  "title": "htop",
+  "pid": 1011,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x000c",
+  "mapped": true,
+  "workspace": {
+   "id": 4,
+   "name": "4"
+  },
+  "monitor": 3,
+  "at": [
+   5890,
+   0
+  ],
+  "size": [
+   2560,
+   1440
+  ],
+  "class": "org.example.Notes",
+  "title": "Shopping",
+  "pid": 1012,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ },
+ {
+  "address": "0x000d",
+  "mapped": true,
+  "workspace": {
+   "id": 5,
+   "name": "5"
+  },
+  "monitor": 4,
+  "at": [
+   8450,
+   0
+  ],
+  "size": [
+   1920,
+   1080
+  ],
+  "class": "kitty",
+  "title": "nvim",
+  "pid": 1013,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false
+ }
+]

@@ -1,0 +1,86 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "SUPER + 1",
+      "title": "Workspace 1",
+      "monitor": "Laptop",
+      "layout": "dwindle",
+      "current": false,
+      "empty": false,
+      "order": 1,
+      "windows": [
+        {
+          "app": "Slack",
+          "icon": "",
+          "title": "general - Acme",
+          "address": "0x0006",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "2",
+      "shortcut": "",
+      "title": "Workspace 2",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 2,
+      "windows": []
+    },
+    {
+      "key": "3",
+      "shortcut": "",
+      "title": "Workspace 3",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 3,
+      "windows": []
+    },
+    {
+      "key": "4",
+      "shortcut": "SUPER + 4",
+      "title": "Workspace 4",
+      "monitor": "Samsung",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 4,
+      "windows": [
+        {
+          "app": "Firefox",
+          "icon": "",
+          "title": "Release notes",
+          "address": "0x0007",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "",
+      "shortcut": "SUPER + `",
+      "title": "Terminal",
+      "monitor": "Samsung",
+      "layout": "",
+      "current": false,
+      "empty": false,
+      "order": 1097,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "claude",
+          "address": "0x0008",
+          "state": "floating",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

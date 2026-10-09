@@ -1,0 +1,17 @@
+[
+ {
+  "name": "1",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "4",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "special:terminal",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ }
+]

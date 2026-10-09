@@ -1,0 +1,27 @@
+[
+ {
+  "name": "1",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "2",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "3",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "4",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "5",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ }
+]

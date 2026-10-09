@@ -1,0 +1,17 @@
+[
+ {
+  "name": "1",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": true
+ },
+ {
+  "name": "3",
+  "tiledLayout": "scrolling",
+  "hasfullscreen": false
+ },
+ {
+  "name": "special:scratchpad",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ }
+]
