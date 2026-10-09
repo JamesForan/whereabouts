@@ -169,7 +169,9 @@ jq -n \
             key: (if $ws.id > 0 and $ws.id < 10 then ($ws.id | tostring) else "" end),
             shortcut: ($shortcuts[if $ws.id > 0 then ($ws.id | tostring) else $ws.name end] // ""),
             title: ($ws.name | group_title),
-            monitor: ($mon[.[0].monitor | tostring] // ""),
+            # Special workspaces open on whichever monitor has focus, so the one
+            # they were last shown on means nothing.
+            monitor: (if $ws.id > 0 then $mon[.[0].monitor | tostring] // "" else "" end),
             layout: (if $ws.id > 0 then ($info.tiledLayout // "") else "" end),
             current: ($ws.id == $activews),
             empty: false,
