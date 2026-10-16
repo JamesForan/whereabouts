@@ -1,0 +1,62 @@
+#!/bin/bash
+# Loads Overlay.qml in Quickshell with the real Omarchy shell modules
+# (qs.Commons, qs.Ui from $OMARCHY_PATH/shell), once per fixture in
+# tests/fixtures, feeds it that fixture's window-list output, and checks the
+# list builds, typing filters it, and no QML warnings are logged.
+#
+# The overlay is a layer-shell window, so like Omarchy's own compositor tests
+# (docs/testing.md) this needs a running Wayland session and skips without one.
+# The overlay is never opened, it runs with a scratch $HOME, and nothing is
+# shown or focused.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+plugin=$(cd "$here/../.." && pwd)
+omarchy=${OMARCHY_PATH:-/usr/share/omarchy}
+command -v quickshell >/dev/null || { echo "tests/qml/run: quickshell isn't installed" >&2; exit 2; }
+[[ -d $omarchy/shell/Commons ]] || { echo "tests/qml/run: no Omarchy shell at $omarchy/shell" >&2; exit 2; }
+if [[ -z ${WAYLAND_DISPLAY:-} || ! -S ${XDG_RUNTIME_DIR:-/nonexistent}/$WAYLAND_DISPLAY ]]; then
+  echo "skip: no Wayland session to load the overlay in"
+  exit 0
+fi
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+# The harness stands in for the shell root, so qs.Commons and qs.Ui resolve
+# to the real Omarchy modules.
+mkdir -p "$work/shell"
+cp -r "$omarchy/shell/Commons" "$omarchy/shell/Ui" "$work/shell/"
+cp "$here/shell.qml" "$work/shell/"
+
+# Scratch home with a real theme, so Color.* resolves as on a desktop. No
+# Hyprland connection: the overlay must not react to live events here.
+export HOME=$work/home
+mkdir -p "$HOME/.local/state/omarchy/current/theme"
+cp "$omarchy/themes/tokyo-night/colors.toml" "$HOME/.local/state/omarchy/current/theme/"
+unset HYPRLAND_INSTANCE_SIGNATURE
+export QT_QPA_PLATFORM=wayland
+
+failed=0
+for dir in "$plugin"/tests/fixtures/*/; do
+  name=$(basename "$dir")
+  log=$work/$name.log
+  PLUGIN_ENTRY="file://$plugin/Overlay.qml" WINDOW_LIST_JSON="$(jq -c . "$dir/expected.json")" \
+    timeout 30 quickshell -p "$work/shell/shell.qml" >"$log" 2>&1 || true
+
+  problems=()
+  grep -q 'RESULT OK' "$log" || problems+=("$(grep 'RESULT FAIL' "$log" || echo 'no result (crashed or timed out)')")
+  if grep -E "$plugin/|TypeError|ReferenceError|SyntaxError" "$log" | grep -qv 'Launching config'; then
+    problems+=("$(grep -E "$plugin/|TypeError|ReferenceError|SyntaxError" "$log" | grep -v 'Launching config')")
+  fi
+
+  if ((${#problems[@]})); then
+    failed=1
+    echo "FAIL $name"
+    printf '  %s\n' "${problems[@]}"
+  else
+    echo "ok   $name"
+  fi
+done
+exit $failed

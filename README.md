@@ -93,7 +93,9 @@ The repository root is the plugin folder:
 - `window-list`: Bash and jq script that reads Hyprland and prints the grouped windows as JSON (`window-list focus <address>` focuses a window). Run it directly to see the data.
 - `tests/`: recorded Hyprland state for a few monitor setups and the JSON `window-list` should print for each. `tests/run` checks them with stubbed `hyprctl`, `tmux`, `ps` and `omarchy`, so it doesn't touch your session. After an intended output change, `tests/run --update` rewrites the expected files; review the diff before committing.
 
-Validate with `omarchy plugin validate .` and `tests/run`. For local testing, copy the three files to `~/.config/omarchy/plugins/jamesforan.whereabouts/`, run `omarchy-shell shell rescanPlugins` and `omarchy plugin enable jamesforan.whereabouts`. The overlay stays loaded, so restart the shell (`omarchy restart shell`) after editing `Overlay.qml`. Edits to `window-list` apply on the next open.
+`tests/qml/run` loads the overlay in Quickshell with the real Omarchy shell modules and feeds it each fixture (it needs a Wayland session, never opens the overlay, and skips without one).
+
+`tests/all` runs every check: `omarchy plugin validate`, the fixtures, Omarchy's `textFormat` scan for `Text` elements (vendored from Omarchy's own tests), and the QML load. Install it as a pre-push hook with `ln -s ../../tests/all .git/hooks/pre-push`. For local testing, copy the three files to `~/.config/omarchy/plugins/jamesforan.whereabouts/`, run `omarchy-shell shell rescanPlugins` and `omarchy plugin enable jamesforan.whereabouts`. The overlay stays loaded, so restart the shell (`omarchy restart shell`) after editing `Overlay.qml`. Edits to `window-list` apply on the next open.
 
 ## License
 
