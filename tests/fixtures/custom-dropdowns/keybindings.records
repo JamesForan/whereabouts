@@ -1,0 +1,4 @@
+SUPER + 1                           → Switch to workspace 1	exec	omarchy-hyprland-workspace 1
+SUPER + S                           → Toggle scratchpad	exec	/home/u/.local/bin/special-toggle scratchpad
+SUPER + N                           → Notes (Amplenote drop-down)	exec	/home/u/.local/bin/quake-app notes '^chrome-www\.amplenote\.com__' --here -- chromium-webapp https://www.amplenote.com/notes
+SUPER + GRAVE                       → Drop-down terminal	exec	quake-app terminal '^dropdown-terminal$' -- foot --app-id=dropdown-terminal

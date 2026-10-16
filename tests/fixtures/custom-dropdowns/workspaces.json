@@ -1,0 +1,37 @@
+[
+ {
+  "name": "1",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "4",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "name": "special:terminal",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ },
+ {
+  "id": -96,
+  "name": "special:notes",
+  "monitor": "eDP-1",
+  "monitorID": 0,
+  "windows": 1,
+  "hasfullscreen": false,
+  "lastwindow": "0xnotes",
+  "lastwindowtitle": "Notes - Amplenote"
+ },
+ {
+  "id": -97,
+  "name": "special:terminal",
+  "monitor": "eDP-1",
+  "monitorID": 0,
+  "windows": 1,
+  "hasfullscreen": false,
+  "lastwindow": "0xdrop",
+  "lastwindowtitle": "foot"
+ }
+]

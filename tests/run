@@ -47,6 +47,13 @@ chmod +x "$stubs"/bin/*
 failed=0
 for dir in "$here"/fixtures/*/; do
   case=$(basename "$dir")
+  # A case can supply Omarchy's keybinding cache (records with the dispatch
+  # behind each key) instead of the plain --print list.
+  rm -rf "$stubs/cache/omarchy"
+  if [[ -f $dir/keybindings.records ]]; then
+    mkdir -p "$stubs/cache/omarchy"
+    cp "$dir/keybindings.records" "$stubs/cache/omarchy/keybindings-test.records"
+  fi
   if ! out=$(FIXTURE=$dir XDG_CACHE_HOME=$stubs/cache PATH="$stubs/bin:$PATH" "$here/../window-list" 2>&1 | jq . 2>&1); then
     echo "FAIL $case: window-list errored"
     printf '%s\n' "$out" | sed 's/^/  /'

@@ -1,6 +1,6 @@
 # Whereabouts
 
-Every open window, grouped by workspace, as a plain text list in the Omarchy menu style. Tap a key, see where everything is, jump to it.
+Every open window, grouped by workspace, as a plain text list in the Omarchy menu style. Tap a key, see where everything is, start typing to narrow it down, jump to it.
 
 ![Whereabouts listing windows grouped by workspace, with dimmed off-screen windows and an empty workspace](preview.png)
 
@@ -9,12 +9,13 @@ Made for the moment a window you were just using seems to have vanished: it's be
 ## Features
 
 - Every workspace with its windows listed underneath, including the scratchpad and other special workspaces.
-- Each workspace header shows its monitor, its layout (dwindle or scrolling), and the shortcut that takes you there.
+- Each workspace header shows its monitor, its layout (dwindle or scrolling), and the shortcut that takes you there, including special workspaces toggled by a script (`special-toggle <name>`, `quake-app <name>`).
 - Windows you can't currently see are dimmed: covered by a fullscreen or maximized window, or scrolled off the edge of the screen.
 - Empty workspaces between used ones show as dimmed "empty" lines, so the numbering never skips.
 - Terminals running tmux show the session name and how many tmux windows it has.
 - Updates live while open. Change a layout, move windows or switch workspace with your usual shortcuts and the list follows.
-- Number keys show a single workspace. No search box and nothing to type.
+- Start typing to filter: "ample" leaves just Amplenote, "brave yt" finds the Brave window on YouTube. Every word has to appear in the app, window title, workspace name or monitor. Enter goes to the first match.
+- Number keys show a single workspace.
 - Uses the menu colours and font of your current Omarchy theme.
 
 ## Requirements
@@ -47,15 +48,23 @@ Hyprland reloads the binding when you save the file. You can also open it from a
 omarchy-shell shell toggle jamesforan.whereabouts
 ```
 
+To open it with a search already typed, pass it as JSON:
+
+```bash
+omarchy-shell shell toggle jamesforan.whereabouts '{"query": "ample"}'
+```
+
 ## Keys
 
 | Key | Action |
 | --- | --- |
-| 1–9 | Show only that workspace |
-| 0, Backspace | Show all workspaces again |
-| ↑ ↓, j k, Tab | Move between windows |
+| Letters, words | Filter windows by app, title, workspace or monitor |
+| Backspace | Delete the last letter (with nothing typed: show all workspaces) |
+| 1–9 | Show only that workspace (before you've typed any letters) |
+| 0 | Show all workspaces again |
+| ↑ ↓, Tab, Ctrl+J/K, Ctrl+N/P | Move between windows |
 | Enter, click | Go to that window |
-| Esc | Back to all workspaces, then close |
+| Esc | Clear the search, then the workspace filter, then close |
 | Your toggle key | Close |
 
 Going to a dimmed window brings it into view: it takes over from a maximized window, or the scrolling layout scrolls to it.

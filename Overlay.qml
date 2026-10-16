@@ -10,8 +10,10 @@ import qs.Ui
 // Toggle with `omarchy-shell shell toggle <plugin id>` (see README for a key
 // binding). Data comes from the bundled `window-list` script (JSON);
 // Enter/click focuses via `window-list focus`.
-// Keys: 1-9 show one workspace, 0/Backspace show all, ↑↓ (or j/k, Tab) move,
-// Enter go, Esc clears the workspace filter and then closes.
+// Keys: type to filter windows by app, title, workspace or monitor (every word
+// must match); 1-9 before any text show one workspace, 0 shows all; ↑↓, Tab or
+// Ctrl+J/K move; Enter go; Backspace deletes; Esc clears the text, then the
+// workspace filter, then closes.
 // Updates live while open: re-reads on any Hyprland event, plus a 1s poll
 // because a workspace layout switch (dwindle/scrolling) may not emit one.
 Item {
@@ -25,6 +27,7 @@ Item {
   property string loadError: ""
   property var groups: []
   property string filterKey: ""
+  property string query: ""
   property int selectedIndex: -1
   property string lastRaw: ""
   property bool refreshPending: false
@@ -48,8 +51,10 @@ Item {
   property int windowRowHeight: Math.max(Style.space(40), Style.font.body + Style.spacing.rowPaddingX * 2)
   property int footerHeight: Style.font.caption + Style.space(8)
   property int listHeight: 0
+  property int searchHeight: root.query ? Style.font.title + Style.space(14) : 0
   property int cardWidth: Math.min(Style.space(620), panel.width - Style.gapsOut * 2)
-  property int cardHeight: Math.min(listHeight + footerHeight + contentSpacing + contentMargin * 2 + Style.space(8),
+  property int cardHeight: Math.min(listHeight + footerHeight + contentSpacing + (searchHeight ? searchHeight + contentSpacing : 0)
+                                    + contentMargin * 2 + Style.space(8),
                                     panel.height - Style.gapsOut * 2)
 
   function open(payloadJson) {
@@ -57,6 +62,12 @@ Item {
     root.loaded = false
     root.loadError = ""
     root.filterKey = ""
+    root.query = ""
+    // Optional payload: {"query": "text"} opens with that search typed in.
+    try {
+      var payload = JSON.parse(payloadJson || "{}")
+      if (payload && typeof payload.query === "string") root.query = payload.query
+    } catch (e) {}
     root.lastRaw = ""
     root.refresh()
     Qt.callLater(function() { keyCatcher.forceActiveFocus() })
@@ -109,9 +120,19 @@ Item {
     var height = 0
     var firstWindow = -1
     var currentWindow = -1
+    var words = root.query.toLowerCase().split(/\s+/).filter(function(w) { return w })
     for (var g = 0; g < root.groups.length; g++) {
       var group = root.groups[g]
       if (root.filterKey && group.key !== root.filterKey) continue
+      var windows = group.windows || []
+      if (words.length) {
+        // Every typed word has to appear in the app, title, workspace or monitor.
+        windows = windows.filter(function(win) {
+          var hay = [win.app, win.title, group.title, group.monitor].join(" ").toLowerCase()
+          return words.every(function(w) { return hay.indexOf(w) !== -1 })
+        })
+        if (windows.length === 0) continue
+      }
       displayModel.append({
         kind: "header", key: group.key || "", shortcut: group.shortcut || "", title: group.title || "",
         monitor: group.monitor || "", layout: group.layout || "", current: !!group.current,
@@ -119,7 +140,6 @@ Item {
         icon: "", app: "", windowTitle: "", winState: "", address: ""
       })
       height += root.headerRowHeight
-      var windows = group.windows || []
       for (var w = 0; w < windows.length; w++) {
         var win = windows[w]
         if (firstWindow < 0) firstWindow = displayModel.count
@@ -137,7 +157,8 @@ Item {
     if (displayModel.count === 0) height = root.windowRowHeight * 2
     root.listHeight = height
     var kept = keptIndex >= 0
-    root.selectedIndex = kept ? keptIndex : (currentWindow >= 0 ? currentWindow : firstWindow)
+    // While searching, Enter should take the best (first) match.
+    root.selectedIndex = kept ? keptIndex : (words.length ? firstWindow : (currentWindow >= 0 ? currentWindow : firstWindow))
     if (kept) return
     Qt.callLater(function() {
       if (root.selectedIndex >= 0) list.positionViewAtIndex(root.selectedIndex, ListView.Contain)
@@ -147,6 +168,12 @@ Item {
 
   function setFilter(key) {
     root.filterKey = key
+    root.rebuild()
+  }
+
+  function setQuery(text) {
+    root.query = text
+    root.selectedIndex = -1
     root.rebuild()
   }
 
@@ -259,19 +286,29 @@ Item {
         Keys.priority: Keys.BeforeItem
         Keys.onPressed: function(event) {
           var k = event.key
+          var mods = event.modifiers
+          var ctrl = (mods & Qt.ControlModifier) !== 0
+          var text = event.text || ""
           if (k === Qt.Key_Escape) {
-            if (root.filterKey) root.setFilter("")
+            if (root.query) root.setQuery("")
+            else if (root.filterKey) root.setFilter("")
             else root.dismiss()
-          } else if (k >= Qt.Key_1 && k <= Qt.Key_9) {
-            root.setFilter(String(k - Qt.Key_0))
-          } else if (k === Qt.Key_0 || k === Qt.Key_Backspace) {
-            root.setFilter("")
-          } else if (k === Qt.Key_Down || k === Qt.Key_J || (k === Qt.Key_Tab && !(event.modifiers & Qt.ShiftModifier))) {
+          } else if (k === Qt.Key_Backspace) {
+            if (root.query) root.setQuery(root.query.slice(0, -1))
+            else root.setFilter("")
+          } else if (k === Qt.Key_Down || (k === Qt.Key_Tab && !(mods & Qt.ShiftModifier)) || (ctrl && (k === Qt.Key_J || k === Qt.Key_N))) {
             root.move(1)
-          } else if (k === Qt.Key_Up || k === Qt.Key_K || k === Qt.Key_Backtab) {
+          } else if (k === Qt.Key_Up || k === Qt.Key_Backtab || (ctrl && (k === Qt.Key_K || k === Qt.Key_P))) {
             root.move(-1)
           } else if (k === Qt.Key_Return || k === Qt.Key_Enter) {
             root.activate(root.selectedIndex)
+          } else if (!root.query && !ctrl && k >= Qt.Key_1 && k <= Qt.Key_9) {
+            root.setFilter(String(k - Qt.Key_0))
+          } else if (!root.query && !ctrl && k === Qt.Key_0) {
+            root.setFilter("")
+          } else if (text && !(mods & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))
+                     && text.charCodeAt(0) >= 32 && !(text === " " && !root.query)) {
+            root.setQuery(root.query + text)
           } else {
             return
           }
@@ -287,9 +324,28 @@ Item {
         anchors.leftMargin: card.contentLeftInset
         spacing: root.contentSpacing
 
+        // What you've typed, shown once you start typing.
+        Item {
+          visible: root.query !== ""
+          width: parent.width
+          height: root.searchHeight
+
+          Text {
+            textFormat: Text.PlainText
+            anchors.left: parent.left
+            anchors.leftMargin: Style.space(8)
+            anchors.verticalCenter: parent.verticalCenter
+            text: "\u203a  " + root.query + "\u258f"
+            color: root.selectedText
+            font.family: root.fontFamily
+            font.pixelSize: Style.font.title
+            font.bold: true
+          }
+        }
+
         Item {
           width: parent.width
-          height: parent.height - root.footerHeight - root.contentSpacing
+          height: parent.height - root.footerHeight - root.contentSpacing - (root.searchHeight ? root.searchHeight + root.contentSpacing : 0)
 
           ListView {
             id: list
@@ -434,7 +490,8 @@ Item {
             textFormat: Text.PlainText
             anchors.centerIn: parent
             visible: displayModel.count === 0
-            text: root.loadError || (root.filterKey ? "Workspace " + root.filterKey + " is empty" : "No open windows")
+            text: root.loadError || (root.query ? "No windows match \u201c" + root.query + "\u201d"
+              : root.filterKey ? "Workspace " + root.filterKey + " is empty" : "No open windows")
             color: root.foreground
             opacity: 0.7
             font.family: root.fontFamily
@@ -447,9 +504,11 @@ Item {
           width: parent.width
           height: root.footerHeight
           horizontalAlignment: Text.AlignHCenter
-          text: root.filterKey
-            ? "0 or Esc show all   ·   ↑↓ move   ·   Enter go"
-            : "1–9 filter workspace   ·   ↑↓ move   ·   Enter go   ·   Esc close"
+          text: root.query
+            ? "↑↓ move   ·   Enter go   ·   Esc clear"
+            : root.filterKey
+            ? "0 or Esc show all   ·   type to search   ·   ↑↓ move   ·   Enter go"
+            : "Type to search   ·   1–9 workspace   ·   ↑↓ move   ·   Enter go   ·   Esc close"
           color: root.foreground
           opacity: 0.45
           font.family: root.fontFamily

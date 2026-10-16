@@ -77,7 +77,7 @@
           "icon": "",
           "title": "claude",
           "address": "0x0008",
-          "state": "floating",
+          "state": "",
           "onScreen": true
         }
       ]

@@ -62,8 +62,9 @@ fi
 
 # Shortcut hints from Omarchy's keybinding list ("SUPER + 1 → Switch to workspace 1").
 # Omarchy's keybinding cache also records the dispatch behind each bind, which
-# finds special-workspace toggles whatever they're called; without it, fall back
-# to "Toggle <name>" descriptions.
+# finds special-workspace toggles whatever they're called, including keys that
+# run a toggle script (`special-toggle <name>`, `quake-app <name>`); without
+# it, fall back to "Toggle <name>" descriptions.
 shortcuts='{}'
 if command -v omarchy >/dev/null; then
   cache=$(ls -t "${XDG_CACHE_HOME:-$HOME/.cache}"/omarchy/keybindings-*.records 2>/dev/null | head -1 || true)
@@ -78,6 +79,8 @@ if command -v omarchy >/dev/null; then
           | (if ($f[0] | test("^Switch to workspace [0-9]+$")) then ($f[0] | sub("^Switch to workspace "; ""))
              elif ($f[2] // "" | test("toggle_special\\(\"[^\"]+\"\\)")) then
                "special:" + ($f[2] | capture("toggle_special\\(\"(?<n>[^\"]+)\"\\)").n)
+             elif ($f[1] // "" | . == "exec") and ($f[2] // "" | test("(^|[/ ])(special-toggle|quake-app) +[A-Za-z0-9_-]+")) then
+               "special:" + ($f[2] | capture("(^|[/ ])(special-toggle|quake-app) +(?<n>[A-Za-z0-9_-]+)").n)
              elif ($f[0] | test("^Toggle [A-Za-z0-9_-]+$")) then "special:" + ($f[0] | sub("^Toggle "; "") | ascii_downcase)
              else empty end) as $target
           | {key: $target, value: .keys} ]
@@ -157,8 +160,10 @@ jq -n \
             else {app: "Terminal", icon: $g_term, title: $t} end
         else {app: ($c | split(".") | last // "" | if . == "" then "Window" else titlecase end), icon: $g_app, title: $t}
         end;
+    # Windows in special workspaces (scratchpad, drop-downs) float as a rule,
+    # so "floating" says nothing there.
     def state:
-      if .floating then "floating" else "" end;
+      if .floating and ((.workspace.name // "") | startswith("special:") | not) then "floating" else "" end;
     # Visible = not covered by a fullscreen/maximized window and overlapping its
     # monitor (the scrolling layout pushes columns off the edge).
     def on_screen($full):
