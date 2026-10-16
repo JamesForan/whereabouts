@@ -1,0 +1,32 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "",
+      "title": "Workspace 1",
+      "monitor": "Laptop",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 1,
+      "windows": [
+        {
+          "app": "Window",
+          "icon": "󰣆",
+          "title": "",
+          "address": "0x1",
+          "state": "",
+          "onScreen": true
+        },
+        {
+          "app": "Window",
+          "icon": "󰣆",
+          "title": "",
+          "address": "0x2",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

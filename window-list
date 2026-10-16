@@ -92,6 +92,7 @@ jq -n \
   --slurpfile clients <(hyprctl clients -j) \
   --slurpfile workspaces <(hyprctl workspaces -j) \
   --slurpfile monitors <(hyprctl monitors all -j) \
+  --slurpfile rules <(hyprctl workspacerules -j 2>/dev/null || echo '[]') \
   --slurpfile tmux <(printf '%s' "$tmux_by_pid") \
   --slurpfile shortcuts <(printf '%s' "$shortcuts") \
   --argjson activews "$(hyprctl activeworkspace -j | jq '.id')" \
@@ -99,7 +100,7 @@ jq -n \
   --arg g_code "$g_code" --arg g_term "$g_term" --arg g_files "$g_files" \
   --arg g_spotify "$g_spotify" --arg g_slack "$g_slack" --arg g_app "$g_app" '
   ($clients[0]) as $clients | ($workspaces[0]) as $workspaces | ($monitors[0]) as $monitors
-  | ($tmux[0]) as $tmux | ($shortcuts[0]) as $shortcuts
+  | ($tmux[0]) as $tmux | ($shortcuts[0]) as $shortcuts | ($rules[0]) as $rules
   # Monitor labels: built-in panel = "Laptop", externals by brand (plus model if
   # two share a brand). EDID makes come from the PNP registry, so they are
   # company names ("Samsung Electric Company", "Dell Inc.") and a few do not
@@ -109,7 +110,7 @@ jq -n \
       {"Ancor Communications Inc": "ASUS", "Microstep": "MSI", "Hewlett Packard": "HP",
        "Goldstar Company Ltd": "LG"}[.]
       // sub(",? (Electric|Electronics|Consumer|Communications|Computer|Company|Corporation|Corp\\.?|Inc\\.?|Co\\.|Ltd\\.?|Limited|Group|International|Technology|Technologies)\\b.*$"; "");
-    ($monitors | map(select(internal | not) | .make // "" | brand) | group_by(.) | map(select(length > 1) | .[0])) as $dupbrands
+    ($monitors | map(select((internal | not) and (.disabled | not)) | .make // "" | brand) | group_by(.) | map(select(length > 1) | .[0])) as $dupbrands
   | ($monitors | map({key: (.id | tostring), value: (
       (.make // "" | brand) as $b
       | if internal then "Laptop"
@@ -119,6 +120,17 @@ jq -n \
           if (.model | ascii_downcase | startswith($b | ascii_downcase + " ")) then $b + .model[($b | length):]
           else "\($b) \(.model)" end
         else $b end)}) | from_entries) as $mon
+  # Empty workspaces do not exist in Hyprland, so their monitor comes from a
+  # workspace rule ("desc:" rules match the start of the description). With no
+  # rule, or its monitor unplugged, they open on the focused monitor: no label.
+  | ($rules
+     | map(select(.workspaceString | test("^[0-9]+$")) | . as $r
+           | (.monitor // "") as $target
+           | ($monitors | map(select((.disabled | not) and
+                 (if ($target | startswith("desc:")) then (.description // "" | startswith($target[5:]))
+                  else .name == $target end))) | first) as $m
+           | select($m) | {key: $r.workspaceString, value: $mon[$m.id | tostring]})
+     | from_entries) as $rulemon
   | ($monitors | map({key: (.id | tostring), value: (
       (if (.transform % 2) == 1 then [.height, .width] else [.width, .height] end) as [$w, $h]
       | {x, y, w: ($w / .scale), h: ($h / .scale)})}) | from_entries) as $geo
@@ -126,7 +138,7 @@ jq -n \
   | def strip($re): sub($re; "");
     def titlecase: sub("^(?<f>.)"; "\(.f | ascii_upcase)");
     def describe:
-      .class as $c | .title as $t
+      (.class // "") as $c | (.title // "") as $t
       | if ($c | test("^(brave|Brave)")) then {app: "Brave", icon: $g_web, title: ($t | strip(" - Brave( Origin| Beta| Nightly)?$"))}
         elif ($c | test("^(chrome|brave)-.*-Default$")) then {app: ($t | strip(" - (Chromium|Google Chrome|Brave)$")), icon: $g_web, title: ""}
         elif ($c | test("^(chromium|Chromium)")) then {app: "Chromium", icon: $g_chrome, title: ($t | strip(" - Chromium$"))}
@@ -143,7 +155,7 @@ jq -n \
           ($tmux[.pid | tostring]) as $tm
           | if $tm then {app: "tmux", icon: $g_term, title: "\($tm.session) · \($tm.windows) window\(if $tm.windows == 1 then "" else "s" end)"}
             else {app: "Terminal", icon: $g_term, title: $t} end
-        else {app: (($c // "?") | split(".") | last | titlecase), icon: $g_app, title: $t}
+        else {app: ($c | split(".") | last // "" | if . == "" then "Window" else titlecase end), icon: $g_app, title: $t}
         end;
     def state:
       if .floating then "floating" else "" end;
@@ -180,13 +192,14 @@ jq -n \
               address: $w.address, state: ($w | state),
               onScreen: ($w | on_screen($info.hasfullscreen // false))}))
           })
-    # Hyprland drops empty workspaces; fill the gaps up to the highest one in use.
+    # Hyprland drops empty workspaces; fill the gaps up to the highest numbered
+    # one in use. Named workspaces get high ids, so they do not count.
     | . as $used
-    | ([$used[] | .order | select(. < 1000)] | max // 0) as $top
+    | ([$clients[] | select(.mapped) | .workspace | select(.id > 0 and .name == (.id | tostring)) | .id] | max // 0) as $top
     | ($used | map(.order)) as $have
     | . + [range(1; $top) | select(. as $i | $have | index($i) | not) | {
         key: (if . < 10 then tostring else "" end), shortcut: ($shortcuts[tostring] // ""),
-        title: "Workspace \(.)", monitor: "", layout: "", current: false, empty: true, order: ., windows: []
+        title: "Workspace \(.)", monitor: ($rulemon[tostring] // ""), layout: "", current: false, empty: true, order: ., windows: []
       }]
     | sort_by(.order)
   )}

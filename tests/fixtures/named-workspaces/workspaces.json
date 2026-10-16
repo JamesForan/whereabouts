@@ -1,0 +1,12 @@
+[
+ {
+  "name": "12",
+  "tiledLayout": "master",
+  "hasfullscreen": false
+ },
+ {
+  "name": "dev",
+  "tiledLayout": "dwindle",
+  "hasfullscreen": false
+ }
+]

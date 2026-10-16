@@ -1,0 +1,71 @@
+[
+ {
+  "address": "0x1",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   100,
+   100
+  ],
+  "title": null,
+  "pid": 1,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false,
+  "class": null
+ },
+ {
+  "address": "0x2",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   100,
+   100
+  ],
+  "title": "",
+  "pid": 2,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false,
+  "class": ""
+ },
+ {
+  "address": "0x3",
+  "mapped": false,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 0,
+  "at": [
+   0,
+   0
+  ],
+  "size": [
+   100,
+   100
+  ],
+  "title": "t",
+  "pid": 3,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false,
+  "class": "x"
+ }
+]

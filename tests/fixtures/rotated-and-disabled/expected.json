@@ -1,0 +1,24 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "",
+      "title": "Workspace 1",
+      "monitor": "LG",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 1,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "a",
+          "address": "0x1",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

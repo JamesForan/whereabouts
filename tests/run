@@ -22,6 +22,7 @@ cat >"$stubs/bin/hyprctl" <<'STUB'
 #!/bin/bash
 case $1 in
   clients | workspaces | monitors | activeworkspace) cat "$FIXTURE/$1.json" ;;
+  workspacerules) cat "$FIXTURE/$1.json" 2>/dev/null || echo '[]' ;;
   *) echo "hyprctl stub: unexpected '$*'" >&2; exit 1 ;;
 esac
 STUB

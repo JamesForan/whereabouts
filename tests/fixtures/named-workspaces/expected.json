@@ -1,0 +1,185 @@
+{
+  "groups": [
+    {
+      "key": "1",
+      "shortcut": "",
+      "title": "Workspace 1",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 1,
+      "windows": []
+    },
+    {
+      "key": "2",
+      "shortcut": "",
+      "title": "Workspace 2",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 2,
+      "windows": []
+    },
+    {
+      "key": "3",
+      "shortcut": "",
+      "title": "Workspace 3",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 3,
+      "windows": []
+    },
+    {
+      "key": "4",
+      "shortcut": "",
+      "title": "Workspace 4",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 4,
+      "windows": []
+    },
+    {
+      "key": "5",
+      "shortcut": "",
+      "title": "Workspace 5",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 5,
+      "windows": []
+    },
+    {
+      "key": "6",
+      "shortcut": "",
+      "title": "Workspace 6",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 6,
+      "windows": []
+    },
+    {
+      "key": "7",
+      "shortcut": "",
+      "title": "Workspace 7",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 7,
+      "windows": []
+    },
+    {
+      "key": "8",
+      "shortcut": "",
+      "title": "Workspace 8",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 8,
+      "windows": []
+    },
+    {
+      "key": "9",
+      "shortcut": "",
+      "title": "Workspace 9",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 9,
+      "windows": []
+    },
+    {
+      "key": "",
+      "shortcut": "",
+      "title": "Workspace 10",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 10,
+      "windows": []
+    },
+    {
+      "key": "",
+      "shortcut": "",
+      "title": "Workspace 11",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": true,
+      "order": 11,
+      "windows": []
+    },
+    {
+      "key": "",
+      "shortcut": "",
+      "title": "Workspace 12",
+      "monitor": "Laptop",
+      "layout": "master",
+      "current": false,
+      "empty": false,
+      "order": 12,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "a",
+          "address": "0x1",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "",
+      "shortcut": "",
+      "title": "Workspace dev",
+      "monitor": "Laptop",
+      "layout": "dwindle",
+      "current": true,
+      "empty": false,
+      "order": 15,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "b",
+          "address": "0x2",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    },
+    {
+      "key": "",
+      "shortcut": "",
+      "title": "Magic",
+      "monitor": "",
+      "layout": "",
+      "current": false,
+      "empty": false,
+      "order": 1099,
+      "windows": [
+        {
+          "app": "Terminal",
+          "icon": "",
+          "title": "c",
+          "address": "0x3",
+          "state": "",
+          "onScreen": true
+        }
+      ]
+    }
+  ]
+}

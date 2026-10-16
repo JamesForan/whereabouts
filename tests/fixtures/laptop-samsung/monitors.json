@@ -9,7 +9,8 @@
   "width": 2256,
   "height": 1504,
   "scale": 1.6,
-  "transform": 0
+  "transform": 0,
+  "description": "BOE 0x0BCA"
  },
  {
   "id": 2,
@@ -21,6 +22,7 @@
   "width": 3440,
   "height": 1440,
   "scale": 1.6,
-  "transform": 0
+  "transform": 0,
+  "description": "Samsung Electric Company SE790C HTRGB00130"
  }
 ]

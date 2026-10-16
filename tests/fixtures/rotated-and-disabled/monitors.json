@@ -1,0 +1,42 @@
+[
+ {
+  "id": 0,
+  "name": "eDP-1",
+  "make": "BOE",
+  "model": "X",
+  "description": "BOE X",
+  "x": 0,
+  "y": 0,
+  "width": 1920,
+  "height": 1080,
+  "scale": 1.0,
+  "transform": 0
+ },
+ {
+  "id": 1,
+  "name": "DP-1",
+  "make": "LG Electronics",
+  "model": "27UL850",
+  "description": "LG Electronics 27UL850",
+  "x": 1920,
+  "y": 0,
+  "width": 3840,
+  "height": 2160,
+  "scale": 2.0,
+  "transform": 3
+ },
+ {
+  "id": 2,
+  "name": "DP-2",
+  "make": "LG Electronics",
+  "model": "27GL83A",
+  "description": "LG 27GL83A",
+  "x": 0,
+  "y": 0,
+  "width": 0,
+  "height": 0,
+  "scale": 1.0,
+  "transform": 0,
+  "disabled": true
+ }
+]

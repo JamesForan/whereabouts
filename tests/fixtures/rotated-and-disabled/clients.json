@@ -1,0 +1,25 @@
+[
+ {
+  "address": "0x1",
+  "mapped": true,
+  "workspace": {
+   "id": 1,
+   "name": "1"
+  },
+  "monitor": 1,
+  "at": [
+   1920,
+   0
+  ],
+  "size": [
+   1080,
+   1920
+  ],
+  "title": "a",
+  "pid": 1,
+  "floating": false,
+  "fullscreen": 0,
+  "pinned": false,
+  "class": "foot"
+ }
+]
