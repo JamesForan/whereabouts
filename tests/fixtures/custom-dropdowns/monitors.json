@@ -15,14 +15,14 @@
  {
   "id": 2,
   "name": "DP-4",
-  "make": "Samsung Electric Company",
-  "model": "SE790C",
+  "make": "Goldstar Company Ltd",
+  "model": "LG ULTRAWIDE",
   "x": -370,
   "y": -900,
   "width": 3440,
   "height": 1440,
   "scale": 1.6,
   "transform": 0,
-  "description": "Samsung Electric Company SE790C HTRGB00130"
+  "description": "Goldstar Company Ltd LG ULTRAWIDE 0x0001A2B3"
  }
 ]

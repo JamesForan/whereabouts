@@ -106,7 +106,7 @@ jq -n \
   | ($tmux[0]) as $tmux | ($shortcuts[0]) as $shortcuts | ($rules[0]) as $rules
   # Monitor labels: built-in panel = "Laptop", externals by brand (plus model if
   # two share a brand). EDID makes come from the PNP registry, so they are
-  # company names ("Samsung Electric Company", "Dell Inc.") and a few do not
+  # company names ("Goldstar Company Ltd", "Dell Inc.") and a few do not
   # match the brand on the box.
   | def internal: .name | test("^(eDP|LVDS|DSI)");
     def brand:
