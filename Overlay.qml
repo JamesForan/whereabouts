@@ -17,6 +17,9 @@ import qs.Ui
 // workspace filter, then closes.
 // Updates live while open: re-reads on any Hyprland event, plus a 1s poll
 // because a workspace layout switch (dwindle/scrolling) may not emit one.
+// Opens on the focused monitor. Every other monitor gets a dimmed twin that
+// closes the overlay on click, so an overlay left open on one screen can't
+// silently swallow clicks on another.
 Item {
   id: root
 
@@ -32,6 +35,8 @@ Item {
   property int selectedIndex: -1
   property string lastRaw: ""
   property bool refreshPending: false
+  // Output the card opens on, chosen from Hyprland's focused monitor on open.
+  property string cardScreenName: ""
   // The data script ships next to this file in the plugin folder.
   property string scriptPath: decodeURIComponent(Qt.resolvedUrl("window-list").toString().replace(/^file:\/\//, ""))
 
@@ -58,7 +63,18 @@ Item {
                                     + contentMargin * 2 + Style.space(8),
                                     panel.height - Style.gapsOut * 2)
 
+  // The ShellScreen called `name`, else the first one, else null.
+  function screenNamed(name) {
+    var screens = Quickshell.screens
+    for (var i = 0; i < screens.length; i++) {
+      if (screens[i].name === name) return screens[i]
+    }
+    return screens.length > 0 ? screens[0] : null
+  }
+
   function open(payloadJson) {
+    var monitor = Hyprland.focusedMonitor
+    root.cardScreenName = monitor ? String(monitor.name || "") : ""
     root.opened = true
     root.loaded = false
     root.loadError = ""
@@ -248,14 +264,31 @@ Item {
   PanelWindow {
     id: panel
     visible: root.opened && root.loaded
+    screen: root.screenNamed(root.cardScreenName)
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
     WlrLayershell.namespace: "whereabouts"
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+    // Prime with Exclusive so the overlay takes the keyboard even from an app
+    // that constrained the pointer, then settle on OnDemand: while a layer is
+    // Exclusive, Hyprland routes every click on every output to it, so the
+    // dismiss twins below would never see one. Same approach as Omarchy's
+    // KeyboardPanel.
+    property bool focusPrimed: false
+    WlrLayershell.keyboardFocus: focusPrimed ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive
     exclusionMode: ExclusionMode.Ignore
 
-    onVisibleChanged: if (visible) keyCatcher.forceActiveFocus()
+    onVisibleChanged: {
+      focusPrimed = false
+      if (visible) keyCatcher.forceActiveFocus()
+    }
+    onBackingWindowVisibleChanged: if (backingWindowVisible && visible) focusPrime.restart()
+
+    Timer {
+      id: focusPrime
+      interval: 75
+      onTriggered: if (panel.visible) panel.focusPrimed = true
+    }
 
     Rectangle {
       anchors.fill: parent
@@ -514,6 +547,39 @@ Item {
           opacity: 0.45
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption
+        }
+      }
+    }
+  }
+
+  // One dimmed, click-to-close window on every monitor the card isn't on.
+  // Keyboard focus None: it must catch the pointer without taking the
+  // keyboard from the card when the cursor merely crosses onto its output.
+  Variants {
+    model: root.opened && root.loaded ? Quickshell.screens : []
+
+    delegate: Component {
+      PanelWindow {
+        required property var modelData
+
+        screen: modelData
+        visible: root.opened && root.loaded && root.cardScreenName !== "" && modelData.name !== root.cardScreenName
+        anchors { top: true; bottom: true; left: true; right: true }
+        color: "transparent"
+        WlrLayershell.namespace: "whereabouts-dismiss"
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+        exclusionMode: ExclusionMode.Ignore
+
+        Rectangle {
+          anchors.fill: parent
+          color: root.scrim
+        }
+
+        MouseArea {
+          anchors.fill: parent
+          acceptedButtons: Qt.AllButtons
+          onPressed: root.dismiss()
         }
       }
     }

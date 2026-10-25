@@ -65,6 +65,7 @@ omarchy-shell shell toggle jamesforan.whereabouts '{"query": "ample"}'
 | ↑ ↓, Tab, Ctrl+J/K, Ctrl+N/P | Move between windows |
 | Enter, click | Go to that window |
 | Esc | Clear the search, then the workspace filter, then close |
+| Click outside the card, on any monitor | Close |
 | Your toggle key | Close |
 
 Going to a dimmed window brings it into view: it takes over from a maximized window, or the scrolling layout scrolls to it.
